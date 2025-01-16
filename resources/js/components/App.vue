@@ -61,7 +61,7 @@ export default {
                 return;
             }
             this.$store.commit('setCurrentComponent', component);
-            router.push(`/${component.toLowerCase()}`); // Update the URL dynamically
+            router.push(`/${component.toLowerCase()}`);
         },
     },
     mounted() {

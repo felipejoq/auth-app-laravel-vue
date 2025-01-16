@@ -96,13 +96,22 @@ export default {
 
                 if (response.ok) {
                     toast.success('Registration successful!');
-                    this.$emit('navigate', 'Login'); // Navigate to the Login component
+                    this.$emit('navigate', 'Login');
                 } else {
-                    toast.error(data.errors ? JSON.stringify(data.errors) : data.message);
+                    this.handleErrors(data.errors);
                 }
             } catch (error) {
-                toast.error('An error occurred during registration.');
+                if (error.response && error.response.data.errors) {
+                    this.handleErrors(error.response.data.errors);
+                } else {
+                    toast.error('An error occurred during registration.');
+                }
             }
+        },
+        handleErrors(errors) {
+            Object.keys(errors).forEach((key) => {
+                errors[key].map(error => toast.error(error));
+            });
         },
         navigateToLogin() {
             this.$emit('navigate', 'Login');

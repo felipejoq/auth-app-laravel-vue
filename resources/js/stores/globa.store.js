@@ -30,7 +30,7 @@ export default createStore({
             localStorage.removeItem('auth_token');
             commit('setAuthentication', false);
             commit('setCurrentComponent', 'Login');
-            router.push('/'); // Redirigir a la página de inicio
+            router.push('/');
         },
     },
 });

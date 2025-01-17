@@ -3,29 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller {
     /**
      * Método para registrar un nuevo usuario.
      */
-    public function register(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:15',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
+    public function register(RegisterRequest $request) {
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -40,12 +29,8 @@ class AuthController extends Controller {
     /**
      * Método para iniciar sesión.
      */
-    public function login(Request $request) {
-        // Validar los datos de entrada
-        $credentials = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+    public function login(LoginRequest $request) {
+        $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();

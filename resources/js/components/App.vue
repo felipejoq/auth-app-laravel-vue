@@ -1,10 +1,8 @@
 <template>
     <div>
-        <!-- Barra de navegación -->
         <nav class="bg-indigo-600 text-white p-6 flex justify-between items-center shadow-md">
             <h1 class="text-2xl font-bold">Auth App</h1>
             <div>
-                <!-- Mostrar "Register" si no está autenticado y no está en la ruta de registro -->
                 <button
                     v-if="!isAuthenticated && currentRoute !== 'Register'"
                     @click="navigate('Register')"
@@ -13,7 +11,6 @@
                     Register
                 </button>
 
-                <!-- Mostrar "Login" si no está autenticado y no está en la ruta de login ('/') -->
                 <button
                     v-if="!isAuthenticated && currentRoute !== 'Login'"
                     @click="navigate('Login')"
@@ -22,7 +19,6 @@
                     Login
                 </button>
 
-                <!-- Mostrar "Logout" si está autenticado -->
                 <button
                     v-if="isAuthenticated"
                     @click="logout"
@@ -33,7 +29,6 @@
             </div>
         </nav>
 
-        <!-- Contenido dinámico -->
         <router-view class="container mx-auto mt-6" />
         <Toaster />
     </div>

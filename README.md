@@ -126,4 +126,4 @@ Para revisar el proyecto localmente, sigue estos pasos 🧪:
 
 ---
 
-Gracias por la oportunidad de participar de este proceso 🙏. Considerando que no había tenido experiencias recientes con Laravel y Vue, me sentí muy cómodo y motivado aprendiendo a desarrollar este desafío 🚀.
+Gracias por la oportunidad de participar de este proceso. Considerando que no había tenido experiencias recientes con Laravel y Vue, me sentí muy cómodo y motivado aprendiendo a desarrollar este desafío 🚀.

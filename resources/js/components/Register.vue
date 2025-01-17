@@ -62,21 +62,22 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 
 export default {
-    data() {
-        return {
-            first_name: '',
-            last_name: '',
-            phone_number: '',
-            email: '',
-            password: '',
-            password_confirmation: '',
-        };
-    },
-    methods: {
-        async register() {
+    setup() {
+        const first_name = ref('');
+        const last_name = ref('');
+        const phone_number = ref('');
+        const email = ref('');
+        const password = ref('');
+        const password_confirmation = ref('');
+
+        const router = useRouter(); // Utiliza el router de Vue
+
+        const register = async () => {
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
@@ -84,38 +85,48 @@ export default {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        first_name: this.first_name,
-                        last_name: this.last_name,
-                        phone_number: this.phone_number,
-                        email: this.email,
-                        password: this.password,
-                        password_confirmation: this.password_confirmation,
+                        first_name: first_name.value,
+                        last_name: last_name.value,
+                        phone_number: phone_number.value,
+                        email: email.value,
+                        password: password.value,
+                        password_confirmation: password_confirmation.value,
                     }),
                 });
+
                 const data = await response.json();
 
                 if (response.ok) {
                     toast.success('Registration successful!');
-                    this.$emit('navigate', 'Login');
+                    router.push('/'); // Redirige al login
                 } else {
-                    this.handleErrors(data.errors);
+                    handleErrors(data.errors);
                 }
             } catch (error) {
-                if (error.response && error.response.data.errors) {
-                    this.handleErrors(error.response.data.errors);
-                } else {
-                    toast.error('An error occurred during registration.');
-                }
+                toast.error('An error occurred during registration.');
             }
-        },
-        handleErrors(errors) {
+        };
+
+        const handleErrors = (errors) => {
             Object.keys(errors).forEach((key) => {
-                errors[key].map(error => toast.error(error));
+                errors[key].forEach(error => toast.error(error));
             });
-        },
-        navigateToLogin() {
-            this.$emit('navigate', 'Login');
-        },
+        };
+
+        const navigateToLogin = () => {
+            router.push('/'); // Redirige al login
+        };
+
+        return {
+            first_name,
+            last_name,
+            phone_number,
+            email,
+            password,
+            password_confirmation,
+            register,
+            navigateToLogin,
+        };
     },
 };
 </script>

@@ -36,41 +36,46 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { ref, computed, onMounted } from 'vue';
+import { useStore } from 'vuex';
 import { toast } from 'vue-sonner';
 
 export default {
-    data() {
-        return {
-            user: null,
-        };
-    },
-    computed: {
-        ...mapState(['isAuthenticated']),
-    },
-    methods: {
-        getInitials(firstName, lastName) {
+    setup() {
+        const user = ref(null);
+        const store = useStore();
+
+        const isAuthenticated = computed(() => store.state.isAuthenticated);
+
+        const getInitials = (firstName, lastName) => {
             return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-        },
-    },
-    async mounted() {
-        if (this.isAuthenticated) {
-            try {
-                const token = localStorage.getItem('auth_token');
-                const response = await fetch('/api/user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                if (response.ok) {
-                    this.user = await response.json();
-                } else {
-                    toast.error('Failed to fetch user data.');
+        };
+
+        onMounted(async () => {
+            if (isAuthenticated.value) {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    const response = await fetch('/api/user', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+                    if (response.ok) {
+                        user.value = await response.json();
+                    } else {
+                        toast.error('Failed to fetch user data.');
+                    }
+                } catch (error) {
+                    toast.error('An error occurred while fetching user data.');
                 }
-            } catch (error) {
-                toast.error('An error occurred while fetching user data.');
             }
-        }
+        });
+
+        return {
+            user,
+            isAuthenticated,
+            getInitials,
+        };
     },
 };
 </script>

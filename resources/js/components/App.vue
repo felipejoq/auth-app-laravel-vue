@@ -1,22 +1,28 @@
 <template>
     <div>
+        <!-- Barra de navegación -->
         <nav class="bg-indigo-600 text-white p-6 flex justify-between items-center shadow-md">
             <h1 class="text-2xl font-bold">Auth App</h1>
             <div>
+                <!-- Mostrar "Register" si no está autenticado y no está en la ruta de registro -->
                 <button
-                    v-if="!isAuthenticated && currentComponent !== 'Register'"
+                    v-if="!isAuthenticated && currentRoute !== 'Register'"
                     @click="navigate('Register')"
                     class="mr-4 bg-indigo-400 px-4 py-2 rounded hover:bg-indigo-500"
                 >
                     Register
                 </button>
+
+                <!-- Mostrar "Login" si no está autenticado y no está en la ruta de login ('/') -->
                 <button
-                    v-if="!isAuthenticated && currentComponent !== 'Login'"
+                    v-if="!isAuthenticated && currentRoute !== 'Login'"
                     @click="navigate('Login')"
                     class="bg-indigo-400 px-4 py-2 rounded hover:bg-indigo-500"
                 >
                     Login
                 </button>
+
+                <!-- Mostrar "Logout" si está autenticado -->
                 <button
                     v-if="isAuthenticated"
                     @click="logout"
@@ -27,45 +33,44 @@
             </div>
         </nav>
 
-        <div class="container mx-auto mt-6">
-            <component :is="currentComponent" @navigate="navigate" />
-        </div>
-
+        <!-- Contenido dinámico -->
+        <router-view class="container mx-auto mt-6" />
         <Toaster />
     </div>
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex';
-import Register from './Register.vue';
-import Login from './Login.vue';
-import Profile from './Profile.vue';
-import {Toaster} from 'vue-sonner';
+import { computed, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import { Toaster, toast } from 'vue-sonner';
 import router from '../router/global.router.js';
 
 export default {
-    components: {
-        Register,
-        Login,
-        Profile,
-        Toaster,
-    },
-    computed: {
-        ...mapState(['isAuthenticated', 'currentComponent']),
-    },
-    methods: {
-        ...mapActions(['checkAuthentication', 'logout', 'login']),
-        navigate(component) {
-            if (this.isAuthenticated && (component === 'Login' || component === 'Register')) {
-                toast.error('You are already logged in!');
-                return;
-            }
-            this.$store.commit('setCurrentComponent', component);
-            router.push(`/${component.toLowerCase()}`);
-        },
-    },
-    mounted() {
-        this.checkAuthentication();
+    components: { Toaster },
+    setup() {
+        const store = useStore();
+        const isAuthenticated = computed(() => store.state.isAuthenticated);
+        const currentRoute = computed(() => router.currentRoute.value.name);
+
+        const navigate = (component) => {
+            const routePath = component === 'Login' ? '/' : `/${component.toLowerCase()}`;
+            router.push(routePath);
+        };
+
+        const logout = () => {
+            store.dispatch('logout');
+        };
+
+        onMounted(() => {
+            store.dispatch('checkAuthentication');
+        });
+
+        return {
+            isAuthenticated,
+            currentRoute,
+            navigate,
+            logout,
+        };
     },
 };
 </script>

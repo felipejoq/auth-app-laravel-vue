@@ -1,5 +1,5 @@
 import router from '../router/global.router.js';
-import {createStore} from "vuex";
+import { createStore } from 'vuex';
 
 export default createStore({
     state: {
@@ -25,6 +25,7 @@ export default createStore({
             localStorage.setItem('auth_token', token);
             commit('setAuthentication', true);
             commit('setCurrentComponent', 'Profile');
+            router.push('/profile');
         },
         logout({ commit }) {
             localStorage.removeItem('auth_token');

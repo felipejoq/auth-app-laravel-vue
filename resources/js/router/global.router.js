@@ -2,12 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from "../components/Login.vue";
 import Register from "../components/Register.vue";
 import Profile from "../components/Profile.vue";
+import NotFound from "../components/NotFound.vue";
 import store from '../stores/globa.store.js';
 
 const routes = [
-    { path: '/', component: Login },
-    { path: '/register', component: Register },
-    { path: '/profile', component: Profile, meta: { requiresAuth: true } },
+    { path: '/', name: 'Login', component: Login },
+    { path: '/register', name: 'Register', component: Register },
+    { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } },
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ];
 
 const router = createRouter({
@@ -16,18 +18,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if (store.state.isAuthenticated) {
-        if (to.path === '/' || to.path === '/register') {
-            next({ path: '/profile' });
-        } else {
-            next();
-        }
+    const isAuthenticated = store.state.isAuthenticated;
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ path: '/', query: { redirect: to.fullPath } });
+    } else if (isAuthenticated && (to.path === '/' || to.path === '/register')) {
+        next({ path: '/profile' });
     } else {
-        if (to.matched.some(record => record.meta.requiresAuth)) {
-            next({ path: '/', query: { redirect: to.fullPath } });
-        } else {
-            next();
-        }
+        next();
     }
 });
 

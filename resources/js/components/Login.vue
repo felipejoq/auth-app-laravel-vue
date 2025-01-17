@@ -34,19 +34,19 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { ref } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 
 export default {
-    data() {
-        return {
-            email: '',
-            password: '',
-        };
-    },
-    methods: {
-        ...mapActions(['login']),
-        async handleLogin() {
+    setup() {
+        const email = ref('');
+        const password = ref('');
+        const store = useStore();
+        const router = useRouter();
+
+        const handleLogin = async () => {
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
@@ -54,26 +54,34 @@ export default {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        email: this.email,
-                        password: this.password,
+                        email: email.value,
+                        password: password.value,
                     }),
                 });
                 const data = await response.json();
 
                 if (response.ok) {
                     toast.success('Login successful!');
-                    await this.login(data.token);
-                    this.$emit('navigate', 'Profile');
+                    await store.dispatch('login', data.token);
+                    router.push('/profile');
                 } else {
                     toast.error('Invalid credentials.');
                 }
             } catch (error) {
                 toast.error('An error occurred during login.');
             }
-        },
-        navigateToRegister() {
-            this.$emit('navigate', 'Register');
-        },
+        };
+
+        const navigateToRegister = () => {
+            router.push('/register');
+        };
+
+        return {
+            email,
+            password,
+            handleLogin,
+            navigateToRegister,
+        };
     },
 };
 </script>
